@@ -8,6 +8,7 @@ import android.arch.paging.PagedList
 import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -17,6 +18,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.example.flickerclient.R
+import com.example.flickerclient.R.id.swipeRefresh
 import com.example.flickerclient.data.Image
 import com.example.flickerclient.data.source.local.ImagesDatabase
 import com.example.flickerclient.ui.adapter.ImagesAdapter
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         getViewModel()
 
         setupRecyclerView()
-        setupRetryBtn()
+        setupSwipeToRefresh()
     }
 
     override fun onStart() {
@@ -54,12 +56,10 @@ class MainActivity : AppCompatActivity() {
         return when (item?.itemId) {
             R.id.refresh -> {
                 model.refresh()
-                Toast.makeText(this, "refresh", Toast.LENGTH_SHORT).show()
                 true
             }
             R.id.delete -> {
                 model.delete()
-                Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> false
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         val imagesDao = ImagesDatabase.getInstance(this).imagesDao()
         model = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return ImagesViewModel(application, imagesDao) as T
+                return ImagesViewModel(application, imagesDao) { showMessage(it) } as T
             }
         }).get(ImagesViewModel::class.java)
     }
@@ -88,14 +88,15 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun setupSwipeToRefresh() {
+        swipeRefresh.setOnRefreshListener { model.refresh() }
 
-    private fun setupRetryBtn() {
-        retryBtn.setOnClickListener { model.refresh() }
-
-        model.showRetry.observe(this, Observer<Boolean> {
-            retryBtn.visibility = if (it!!) View.VISIBLE else View.GONE
+        model.refreshStateLoading.observe(this, Observer<Boolean> {
+            swipeRefresh.isRefreshing = it!!
         })
     }
+
+    private fun showMessage(msg: String) = Snackbar.make(swipeRefresh, msg, Snackbar.LENGTH_SHORT).show()
 
     private fun isPortrait(): Boolean = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 

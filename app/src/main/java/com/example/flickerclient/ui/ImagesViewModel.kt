@@ -17,14 +17,16 @@ import com.example.flickerclient.util.Const.PAGE_SIZE
 import com.example.flickerclient.util.Const.PREF_LAST_PAGE
 import com.example.flickerclient.util.Prefs
 
-class ImagesViewModel(private val app: Application, private val imagesDao: ImagesDao) : AndroidViewModel(app) {
+class ImagesViewModel(private val app: Application,
+                      private val imagesDao: ImagesDao,
+                      private val showMessage: (msg: String) -> Unit)
+    : AndroidViewModel(app) {
 
     val images: LiveData<PagedList<Image>>
-    val showRetry = MutableLiveData<Boolean>()
+    val refreshStateLoading = MutableLiveData<Boolean>()
     private val remoteDataSource = RemoteDataSource.getInstance()
 
     init {
-        showRetry.value = false
         val factory: DataSource.Factory<Int, Image> = imagesDao.getImages()
         val config = PagedList.Config.Builder().apply {
             setEnablePlaceholders(false)
@@ -37,7 +39,7 @@ class ImagesViewModel(private val app: Application, private val imagesDao: Image
 
     fun refresh() {
         Log.d(TAG, "[refresh]")
-        showRetry.value = false
+        refreshStateLoading.value = true
         remoteDataSource.getRecentImages(object : RemoteDataSource.ImagesLoaded {
             override fun onLoad(images: List<Image>) {
                 Log.d(TAG, "[onLoad] ${images.size}")
@@ -49,11 +51,13 @@ class ImagesViewModel(private val app: Application, private val imagesDao: Image
 
                 // reset next page
                 Prefs.setInt(app.applicationContext, PREF_LAST_PAGE, 1)
+                refreshStateLoading.value = false
             }
 
             override fun onFailure() {
                 Log.d(TAG, "[onFailure]")
-                showRetry.value = true
+                refreshStateLoading.value = false
+                showMessage.invoke("Refresh failed, please try again")
             }
         })
     }
