@@ -24,7 +24,7 @@ open class RemoteDataSource private constructor() {
 
     fun getRecentImages(callback: ImagesLoaded, page: Int = 1) {
 
-        val url = service.getRecent("4aa2e6c19b7ef76656d2488879cc3833").request().url().toString()
+        val url = service.getRecent("4aa2e6c19b7ef76656d2488879cc3833", page = page).request().url().toString()
         Log.d(TAG, "[getRecentImages] url = $url")
 
         service.getRecent("4aa2e6c19b7ef76656d2488879cc3833", page = page)

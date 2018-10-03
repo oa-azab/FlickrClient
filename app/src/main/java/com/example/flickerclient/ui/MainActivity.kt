@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.example.flickerclient.R
 import com.example.flickerclient.data.Image
@@ -34,15 +35,13 @@ class MainActivity : AppCompatActivity() {
         getViewModel()
 
         setupRecyclerView()
+        setupRetryBtn()
     }
 
-    private fun getViewModel() {
-        val imagesDao = ImagesDatabase.getInstance(this).imagesDao()
-        model = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return ImagesViewModel(application, imagesDao) as T
-            }
-        }).get(ImagesViewModel::class.java)
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "[onStart]")
+        model.refresh()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -67,6 +66,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getViewModel() {
+        val imagesDao = ImagesDatabase.getInstance(this).imagesDao()
+        model = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return ImagesViewModel(application, imagesDao) as T
+            }
+        }).get(ImagesViewModel::class.java)
+    }
+
     private fun setupRecyclerView() {
         // set layout manager based on screen orientation
         if (isPortrait()) imagesRv.layoutManager = LinearLayoutManager(this)
@@ -77,6 +85,15 @@ class MainActivity : AppCompatActivity() {
         imagesRv.adapter = adapter
         model.images.observe(this, Observer<PagedList<Image>> {
             adapter.submitList(it)
+        })
+    }
+
+
+    private fun setupRetryBtn() {
+        retryBtn.setOnClickListener { model.refresh() }
+
+        model.showRetry.observe(this, Observer<Boolean> {
+            retryBtn.visibility = if (it!!) View.VISIBLE else View.GONE
         })
     }
 

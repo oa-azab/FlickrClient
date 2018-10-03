@@ -5,8 +5,7 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity
 data class Image(
-        @PrimaryKey(autoGenerate = true)
-        var nid: Int,
+        @PrimaryKey
         var id: String,
         var secret: String,
         var server: String,

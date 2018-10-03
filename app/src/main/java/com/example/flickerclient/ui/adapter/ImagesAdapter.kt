@@ -1,7 +1,6 @@
 package com.example.flickerclient.ui.adapter
 
 import android.arch.paging.PagedListAdapter
-import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -12,18 +11,8 @@ import com.example.flickerclient.R
 import com.example.flickerclient.data.Image
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_image.view.*
-import java.util.*
 
-class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(
-        object : DiffUtil.ItemCallback<Image>() {
-            override fun areItemsTheSame(p0: Image, p1: Image): Boolean {
-                return p0.nid == p1.nid
-            }
-
-            override fun areContentsTheSame(p0: Image, p1: Image): Boolean {
-                return p0 == p1
-            }
-        }) {
+class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(IMAGE_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         return ImageViewHolder(
@@ -37,10 +26,29 @@ class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Image) = with(itemView) {
             Log.d("ImageViewHolder", "[bind] imageUrl= ${item.getUrl()}")
+            imageId.text = item.id
             Picasso.get()
                     .load(item.getUrl())
-                    .placeholder(R.drawable.ic_twotone_photo)
+                    .resize(400, 200)
+                    .centerCrop()
+                    .placeholder(R.drawable.img_placeholder)
                     .into(imageImg)
+        }
+    }
+
+    override fun onViewRecycled(holder: ImageViewHolder) {
+        holder.itemView.imageImg.setImageBitmap(null)
+    }
+
+    companion object {
+        val IMAGE_COMPARATOR = object : DiffUtil.ItemCallback<Image>() {
+            override fun areItemsTheSame(p0: Image, p1: Image): Boolean {
+                return p0.id == p1.id
+            }
+
+            override fun areContentsTheSame(p0: Image, p1: Image): Boolean {
+                return p0 == p1
+            }
         }
     }
 }
