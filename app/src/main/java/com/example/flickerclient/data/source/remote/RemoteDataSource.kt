@@ -22,12 +22,12 @@ open class RemoteDataSource private constructor() {
         service = retrofit.create(FlickerService::class.java)
     }
 
-    fun getRecentImages(callback: ImagesLoaded) {
+    fun getRecentImages(callback: ImagesLoaded, page: Int = 1) {
 
-        val url = service.getRecent(apiKey = "4aa2e6c19b7ef76656d2488879cc3833").request().url().toString()
+        val url = service.getRecent("4aa2e6c19b7ef76656d2488879cc3833").request().url().toString()
         Log.d(TAG, "[getRecentImages] url = $url")
 
-        service.getRecent(apiKey = "4aa2e6c19b7ef76656d2488879cc3833")
+        service.getRecent("4aa2e6c19b7ef76656d2488879cc3833", page = page)
                 .enqueue(object : Callback<GetRecentResponse> {
                     override fun onResponse(call: Call<GetRecentResponse>, response: Response<GetRecentResponse>) {
                         Log.d(TAG, "[getRecentImages] onResponse")

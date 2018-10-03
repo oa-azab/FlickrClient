@@ -1,46 +1,86 @@
 package com.example.flickerclient.ui
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
+import android.arch.paging.PagedList
+import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.widget.Toast
 import com.example.flickerclient.R
+import com.example.flickerclient.data.Image
+import com.example.flickerclient.data.source.local.ImagesDatabase
 import com.example.flickerclient.ui.adapter.ImagesAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(), MainContract.View {
+class MainActivity : AppCompatActivity() {
 
-    lateinit var presenter: MainPresenter
+    private lateinit var model: ImagesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.d(TAG, "[onCreate]")
 
-        // create presenter
-        presenter = MainPresenter(this)
+        // get ViewModel
+        getViewModel()
 
         setupRecyclerView()
     }
 
+    private fun getViewModel() {
+        val imagesDao = ImagesDatabase.getInstance(this).imagesDao()
+        model = ViewModelProviders.of(this, object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return ImagesViewModel(application, imagesDao) as T
+            }
+        }).get(ImagesViewModel::class.java)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.refresh -> {
+                model.refresh()
+                Toast.makeText(this, "refresh", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.delete -> {
+                model.delete()
+                Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> false
+        }
+    }
+
     private fun setupRecyclerView() {
-        imagesRv.layoutManager = LinearLayoutManager(this)
-    }
+        // set layout manager based on screen orientation
+        if (isPortrait()) imagesRv.layoutManager = LinearLayoutManager(this)
+        else imagesRv.layoutManager = GridLayoutManager(this, 2)
 
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "[onStart]")
-        presenter.start()
-    }
-
-    override fun setAdapter(adapter: ImagesAdapter) {
-        Log.d(TAG, "[setAdapter]")
+        // observe images from room
+        val adapter = ImagesAdapter()
         imagesRv.adapter = adapter
+        model.images.observe(this, Observer<PagedList<Image>> {
+            adapter.submitList(it)
+        })
     }
 
-    override fun showData() {
-        Log.d(TAG, "[showData]")
-    }
+    private fun isPortrait(): Boolean = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
     companion object {
         private const val TAG = "MainActivity"

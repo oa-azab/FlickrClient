@@ -1,5 +1,8 @@
 package com.example.flickerclient.ui.adapter
 
+import android.arch.paging.PagedListAdapter
+import android.support.v7.recyclerview.extensions.ListAdapter
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,9 +14,16 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_image.view.*
 import java.util.*
 
-class ImagesAdapter : RecyclerView.Adapter<ImagesAdapter.ImageViewHolder>() {
+class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(
+        object : DiffUtil.ItemCallback<Image>() {
+            override fun areItemsTheSame(p0: Image, p1: Image): Boolean {
+                return p0.nid == p1.nid
+            }
 
-    private var data: List<Image> = ArrayList()
+            override fun areContentsTheSame(p0: Image, p1: Image): Boolean {
+                return p0 == p1
+            }
+        }) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         return ImageViewHolder(
@@ -22,14 +32,7 @@ class ImagesAdapter : RecyclerView.Adapter<ImagesAdapter.ImageViewHolder>() {
         )
     }
 
-    override fun getItemCount() = data.size
-
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) = holder.bind(data[position])
-
-    fun swapData(data: List<Image>) {
-        this.data = data
-        notifyDataSetChanged()
-    }
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) = holder.bind(getItem(position)!!)
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: Image) = with(itemView) {
