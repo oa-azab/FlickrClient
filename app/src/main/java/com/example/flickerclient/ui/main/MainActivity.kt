@@ -17,6 +17,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Toast
 import com.example.flickerclient.R
 import com.example.flickerclient.data.Image
 import com.example.flickerclient.data.source.local.ImagesDatabase
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
         // get ViewModel
         getViewModel()
 
+        setupToolbar()
         setupCounter()
         setupRecyclerView()
         setupSwipeToRefresh()
@@ -47,10 +49,15 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
         model.refresh()
     }
 
+    private fun setupToolbar() {
+        setSupportActionBar(toolbar)
+    }
+
     private fun setupCounter() {
         counter = object : CountDownTimer(AUTO_UPDATE_INTERVAL, AUTO_UPDATE_INTERVAL) {
             override fun onFinish() {
                 Log.d(TAG, "Counter: onFinish")
+                Toast.makeText(this@MainActivity, "Auto updating images..", Toast.LENGTH_SHORT).show()
                 model.refresh()
                 counter.start()
             }
