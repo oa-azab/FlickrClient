@@ -38,12 +38,19 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
 
         setupRecyclerView()
         setupSwipeToRefresh()
+
+        // auto update on first run
+        model.refresh()
     }
 
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "[onStart]")
-        model.refresh()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "[onStop]")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

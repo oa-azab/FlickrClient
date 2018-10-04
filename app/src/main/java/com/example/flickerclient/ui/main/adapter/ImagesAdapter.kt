@@ -1,4 +1,4 @@
-package com.example.flickerclient.ui.adapter
+package com.example.flickerclient.ui.main.adapter
 
 import android.arch.paging.PagedListAdapter
 import android.support.v7.util.DiffUtil
@@ -52,7 +52,7 @@ class ImagesAdapter(val callback: ImageClickedCallback) :
         holder.itemView.imageImg.setImageBitmap(null)
     }
 
-    public interface ImageClickedCallback {
+    interface ImageClickedCallback {
         fun onImageClicked(image: Image)
     }
 
