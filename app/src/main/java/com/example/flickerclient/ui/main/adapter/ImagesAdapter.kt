@@ -26,25 +26,22 @@ class ImagesAdapter(val callback: ImageClickedCallback) :
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        override fun onClick(view: View?) {
-            val position = adapterPosition
-            if (position != RecyclerView.NO_POSITION)
-                callback.onImageClicked(getItem(position)!!)
-        }
+        init { itemView.setOnClickListener(this) }
 
         fun bind(item: Image) = with(itemView) {
             Log.d("ImageViewHolder", "[bind] imageUrl= ${item.getUrl()}")
-            imageId.text = item.id
             Picasso.get()
                     .load(item.getUrl())
                     .resize(400, 200)
                     .centerCrop()
                     .placeholder(R.drawable.img_placeholder)
                     .into(imageImg)
+        }
+
+        override fun onClick(view: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION)
+                callback.onImageClicked(getItem(position)!!)
         }
     }
 

@@ -9,37 +9,37 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-open class RemoteDataSource private constructor() {
+class RemoteDataSource private constructor() {
 
     private val service: FlickerService
 
     init {
         val retrofit = Retrofit.Builder()
-                .baseUrl("https://api.flickr.com")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
 
         service = retrofit.create(FlickerService::class.java)
     }
 
-    fun getRecentImages(callback: ImagesLoaded, page: Int = 1) {
+    fun getImages(callback: ImagesLoaded, page: Int = 1) {
 
-        val url = service.getRecent("4aa2e6c19b7ef76656d2488879cc3833", page = page).request().url().toString()
-        Log.d(TAG, "[getRecentImages] url = $url")
+        val url = service.getImages(page).request().url().toString()
+        Log.d(TAG, "[getImages] url = $url")
 
-        service.getRecent("4aa2e6c19b7ef76656d2488879cc3833", page = page)
+        service.getImages(page)
                 .enqueue(object : Callback<GetRecentResponse> {
                     override fun onResponse(call: Call<GetRecentResponse>, response: Response<GetRecentResponse>) {
-                        Log.d(TAG, "[getRecentImages] onResponse")
+                        Log.d(TAG, "[getImages] onResponse")
                         if (!response.isSuccessful) {
-                            Log.d(TAG, "[getRecentImages] onResponse request not successful ${response.code()}")
+                            Log.d(TAG, "[getImages] onResponse request not successful ${response.code()}")
                             callback.onFailure()
                             return
                         }
 
                         val data = response.body()?.photos?.photo
                         if (data == null) {
-                            Log.d(TAG, "[getRecentImages] onResponse data is null")
+                            Log.d(TAG, "[getImages] onResponse data is null")
                             callback.onFailure()
                             return
                         }
@@ -48,7 +48,7 @@ open class RemoteDataSource private constructor() {
                     }
 
                     override fun onFailure(call: Call<GetRecentResponse>, t: Throwable) {
-                        Log.d(TAG, "[getRecentImages] onFailure")
+                        Log.d(TAG, "[getImages] onFailure")
                         callback.onFailure()
                     }
                 })
@@ -63,6 +63,7 @@ open class RemoteDataSource private constructor() {
     companion object {
 
         private const val TAG = "RemoteDataSource"
+        private const val BASE_URL = "https://api.flickr.com"
 
         private var INSTANCE: RemoteDataSource? = null
 

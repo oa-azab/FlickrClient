@@ -27,6 +27,11 @@ import com.example.flickerclient.util.Const.AUTO_UPDATE_INTERVAL
 import com.example.flickerclient.util.Const.EXTRA_IMAGE_ID
 import kotlinx.android.synthetic.main.activity_main.*
 
+/**
+ * This activity is responsible for observing ui data
+ * from ImagesViewModel and updating ui
+ * also triggering action in ImagesViewModel
+ */
 class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
 
     private lateinit var model: ImagesViewModel
@@ -49,9 +54,8 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
         model.refresh()
     }
 
-    private fun setupToolbar() {
-        setSupportActionBar(toolbar)
-    }
+    private fun setupToolbar() = setSupportActionBar(toolbar)
+
 
     private fun setupCounter() {
         counter = object : CountDownTimer(AUTO_UPDATE_INTERVAL, AUTO_UPDATE_INTERVAL) {

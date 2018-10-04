@@ -17,6 +17,9 @@ import com.example.flickerclient.util.Const.PAGE_SIZE
 import com.example.flickerclient.util.Const.PREF_LAST_PAGE
 import com.example.flickerclient.util.Prefs
 
+/**
+ * This ViewModel holds LiveData containers of UI data
+ */
 class ImagesViewModel(private val app: Application,
                       private val imagesDao: ImagesDao,
                       private val showMessage: (msg: String) -> Unit)
@@ -40,7 +43,7 @@ class ImagesViewModel(private val app: Application,
     fun refresh() {
         Log.d(TAG, "[refresh]")
         refreshStateLoading.value = true
-        remoteDataSource.getRecentImages(object : RemoteDataSource.ImagesLoaded {
+        remoteDataSource.getImages(object : RemoteDataSource.ImagesLoaded {
             override fun onLoad(images: List<Image>) {
                 Log.d(TAG, "[onLoad] ${images.size}")
 

@@ -15,6 +15,9 @@ import com.example.flickerclient.util.Const.EXTRA_IMAGE_ID
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
 
+/**
+ * This activity is responsible to show single image in fullscreen mode
+ */
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var currentImage: Image
