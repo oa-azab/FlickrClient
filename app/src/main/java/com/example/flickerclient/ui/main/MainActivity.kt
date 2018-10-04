@@ -1,10 +1,11 @@
-package com.example.flickerclient.ui
+package com.example.flickerclient.ui.main
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.arch.paging.PagedList
+import android.content.Intent
 import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -15,16 +16,15 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import com.example.flickerclient.R
-import com.example.flickerclient.R.id.swipeRefresh
 import com.example.flickerclient.data.Image
 import com.example.flickerclient.data.source.local.ImagesDatabase
-import com.example.flickerclient.ui.adapter.ImagesAdapter
+import com.example.flickerclient.ui.detail.DetailActivity
+import com.example.flickerclient.ui.main.adapter.ImagesAdapter
+import com.example.flickerclient.util.Const.EXTRA_IMAGE_ID
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
 
     private lateinit var model: ImagesViewModel
 
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         else imagesRv.layoutManager = GridLayoutManager(this, 2)
 
         // observe images from room
-        val adapter = ImagesAdapter()
+        val adapter = ImagesAdapter(this)
         imagesRv.adapter = adapter
         model.images.observe(this, Observer<PagedList<Image>> {
             adapter.submitList(it)
@@ -94,6 +94,13 @@ class MainActivity : AppCompatActivity() {
         model.refreshStateLoading.observe(this, Observer<Boolean> {
             swipeRefresh.isRefreshing = it!!
         })
+    }
+
+    override fun onImageClicked(image: Image) {
+        val intent = Intent(this, DetailActivity::class.java).apply {
+            putExtra(EXTRA_IMAGE_ID, image.id)
+        }
+        startActivity(intent)
     }
 
     private fun showMessage(msg: String) = Snackbar.make(swipeRefresh, msg, Snackbar.LENGTH_SHORT).show()

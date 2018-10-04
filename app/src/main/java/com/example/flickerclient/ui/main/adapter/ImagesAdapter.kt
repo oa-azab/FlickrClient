@@ -12,7 +12,8 @@ import com.example.flickerclient.data.Image
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_image.view.*
 
-class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(IMAGE_COMPARATOR) {
+class ImagesAdapter(val callback: ImageClickedCallback) :
+        PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(IMAGE_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         return ImageViewHolder(
@@ -23,7 +24,18 @@ class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(IMA
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) = holder.bind(getItem(position)!!)
 
-    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(view: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION)
+                callback.onImageClicked(getItem(position)!!)
+        }
+
         fun bind(item: Image) = with(itemView) {
             Log.d("ImageViewHolder", "[bind] imageUrl= ${item.getUrl()}")
             imageId.text = item.id
@@ -38,6 +50,10 @@ class ImagesAdapter : PagedListAdapter<Image, ImagesAdapter.ImageViewHolder>(IMA
 
     override fun onViewRecycled(holder: ImageViewHolder) {
         holder.itemView.imageImg.setImageBitmap(null)
+    }
+
+    public interface ImageClickedCallback {
+        fun onImageClicked(image: Image)
     }
 
     companion object {

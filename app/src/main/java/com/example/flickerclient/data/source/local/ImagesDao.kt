@@ -14,6 +14,9 @@ interface ImagesDao {
     @Query("SELECT * FROM Image")
     fun getImages(): DataSource.Factory<Int, Image>
 
+    @Query("SELECT * FROM Image WHERE id =:id")
+    fun getImage(id: String): Image
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(images: List<Image>)
 

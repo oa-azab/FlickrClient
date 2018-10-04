@@ -1,4 +1,4 @@
-package com.example.flickerclient.ui
+package com.example.flickerclient.ui.main
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
