@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -21,12 +22,14 @@ import com.example.flickerclient.data.Image
 import com.example.flickerclient.data.source.local.ImagesDatabase
 import com.example.flickerclient.ui.detail.DetailActivity
 import com.example.flickerclient.ui.main.adapter.ImagesAdapter
+import com.example.flickerclient.util.Const.AUTO_UPDATE_INTERVAL
 import com.example.flickerclient.util.Const.EXTRA_IMAGE_ID
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
 
     private lateinit var model: ImagesViewModel
+    private lateinit var counter: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
         // get ViewModel
         getViewModel()
 
+        setupCounter()
         setupRecyclerView()
         setupSwipeToRefresh()
 
@@ -43,14 +47,28 @@ class MainActivity : AppCompatActivity(), ImagesAdapter.ImageClickedCallback {
         model.refresh()
     }
 
+    private fun setupCounter() {
+        counter = object : CountDownTimer(AUTO_UPDATE_INTERVAL, AUTO_UPDATE_INTERVAL) {
+            override fun onFinish() {
+                Log.d(TAG, "Counter: onFinish")
+                model.refresh()
+                counter.start()
+            }
+
+            override fun onTick(p0: Long) {}
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "[onStart]")
+        counter.start()
     }
 
     override fun onStop() {
         super.onStop()
         Log.d(TAG, "[onStop]")
+        counter.cancel()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
